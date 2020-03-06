@@ -24,8 +24,8 @@ function printData(valueDate) {
 export default class Messanger {
   constructor(name) {
     this.nameUser = name;
-    // this.url = 'ws://localhost:7070/ws';
-    this.url = 'wss://heroku-ahj-hw-8-2.herokuapp.com/ws';
+    this.url = 'ws://localhost:7070/ws';
+    // this.url = 'wss://heroku-ahj-hw-8-2.herokuapp.com/ws';
   }
 
   init() {

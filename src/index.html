@@ -9,6 +9,7 @@
 </head>
 
 <body>
+
     <div class="window">
         <p>Выберите псевдоним</p>
         <input type="text" id="inp-name">
@@ -18,8 +19,34 @@
         <p>Никнейм занят</p>
         <div class="button" id="ok-alert">Ok</div>
     </div>
+<!-- object mes -->
+<div class="legends">
+    <div class="top-block">
+        <input type="file" id="button-select">
+        <div class="add-file">addFile</div>
+    </div>
+    <div id="drop-file" class="display-legends">
 
-    <div class="messanger hidden">
+    </div>
+    <div class="inputs">
+      <input type="text" id="el-input">
+      <div class="button-av">
+        <div class="start-rec">
+          <div id="audio" class="av"></div>
+          <div id="video" class="av"></div>
+        </div>
+        <div class="stop-rec hidden">
+          <div id="play-ok" class="av"></div>
+          <span id="timer">00:00</span>
+          <div id="play-cancel" class="av"></div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+<!-- object end mes -->
+<!-- <div class="messanger hidden"></div> -->
+    <div class="messanger">
         <div id="list-users"></div>
         <div class="messanger-list">
             <ul id="list-msg"></ul>
