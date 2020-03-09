@@ -1,14 +1,16 @@
 import API from './Api.js';
 import Messanger from './messanger.js';
 import TransferMessage from './transfer-message.js';
-import Crypton from './crypt.js';
+// import Crypton from './crypt.js';
 
 const uuid = require('uuid');
 
 // *******************************************
 const elAddFile = document.querySelector('.add-file');
-let crypton = {};
-const localArrMessages = [];
+// let crypton = {};
+let transferMsg = {};
+// const localArrMessages = [];
+// const transferMsg = new TransferMessage(crypton);
 // *******************************************
 
 const api = new API('http://localhost:7070/users');
@@ -20,19 +22,26 @@ const alertName = document.querySelector('#alert');
 const okAlert = document.querySelector('#ok-alert');
 let nameUser = '';
 
-function conectChat() {
-  const messanger = new Messanger(nameUser);
-  messanger.init();
-}
+// function conectChat() {
+//   // const messanger = new Messanger(nameUser);
+//   // messanger.init();
+// }
 
 submitName.addEventListener('click', async () => {
   const inputName = document.querySelector('#inp-name');
-  crypton = new Crypton(inputName.value);
+  const keyCrypt = inputName.value;
+  
+  transferMsg = new TransferMessage(keyCrypt);
+  transferMsg.init();
+  
   // nameUser = inputName.value;
   inputName.value = '';
-  alertName.classList.remove('hidden');
+  // alertName.classList.remove('hidden');
   elWindowStart.classList.add('hidden');
-  conectChat();
+
+  // transferMsg.lazyLoad();
+
+  // conectChat();
 
   // if (nameUser) {
   //   const response = await api.load();
@@ -69,34 +78,88 @@ elSelectFile.addEventListener('dragover', (event) => {
 elSelectFile.addEventListener('drop', (event) => {
   event.preventDefault();
   const files = Array.from(event.dataTransfer.files);
-  console.log(files, crypton);
-  // loadFile(files);
+  console.log('start file');
+  for (const item of files) {
+    loadFile(item);
+  }
+  // loadFile(files[0]);
 });
 
 buttonSelectFile.addEventListener('change', (event) => {
   const files = Array.from(event.currentTarget.files);
-  console.log(files, crypton);
-  // loadFile(files);
+  // console.log(files[0].type, crypton);
+  // const regExp = /[a-z]+/;
+  // console.log(files[0].type.match(regExp)[0]);
+  loadFile(files[0]);
 });
+
+elSelectFile.addEventListener('scroll', (event) => {
+  if (event.target.scrollTop === 0) {
+    transferMsg.lazyLoad();
+  }
+  console.log(event.target.scrollTop);
+});
+
+// **************** input file *********************
+function loadFile(file) {
+  const itemId = uuid.v4();
+  const regExp = /[a-z]+/;
+  const typeFile = file.type.match(regExp)[0];
+
+  // console.log(typeFile);
+  // transferMsg.sendMessage(file, typeFile);
+
+  // let dataFile = null;
+  const fr = new FileReader();
+  fr.readAsDataURL(file);
+
+  fr.onload = () => {
+    // dataFile = crypton.enCrypt(fr.result);
+
+    const objMessage = {
+      id: itemId,
+      type: typeFile,
+      pin: false,
+      favorit: false,
+      msg: fr.result,
+      // msg: dataFile,
+      dateTime: new Date(),
+    };
+    console.log('objMessage');
+    console.log(objMessage);
+    // localArrMessages.push(objMessage);
+    transferMsg.sendMessage(objMessage);
+
+  };
+
+}
 
 // **************** input text *********************
 const elInput = document.querySelector('#el-input');
 
 elInput.addEventListener('keypress', (evt) => {
   if (evt.key === 'Enter') {
-    console.log(elInput.value);
-    const cryptText = crypton.enCrypt(elInput.value);
-    console.log(cryptText);
-    console.log(crypton.deCrypt(cryptText));
+    // console.log(elInput.value);
+    
+    // const cryptText = crypton.enCrypt(elInput.value);
+    
+    // // console.log(cryptText);
+    // // console.log(crypton.deCrypt(cryptText));
     const objMessage = {
       id: uuid.v4(),
       type: 'text',
       pin: false,
       favorit: false,
-      msg: cryptText,
+      msg: elInput.value,
+      // msg: cryptText,
       dateTime: new Date(),
     };
-    console.log(objMessage);
+    // localArrMessages.push(objMessage);
+    transferMsg.sendMessage(objMessage);
+    
+    console.log(elInput.value);
+    // transferMsg.sendMessage(elInput.value, 'text');
+    
     elInput.value = '';
     // cmessageAddGeo.messageAddGEO(`<p>${elInput.value}</p>`, popup);
   }
