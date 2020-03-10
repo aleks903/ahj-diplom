@@ -59,10 +59,8 @@ export default class TransferMessage{
           return;
       }
 
-console.log('start decrypt ', new Date());
       const deCrypt = this.crypton.deCrypt(inpMsg.msg);
       
-console.log('end decrypt ', new Date());
       if (deCrypt && deCrypt !== null) {
         // console.log(deCrypt);
         inpMsg.msg = deCrypt;
@@ -99,7 +97,7 @@ console.log('end decrypt ', new Date());
     } else {
       // Reconnect
       console.log('reconect');
-      this.ws = new WebSocket(this.url);
+      this.ws = new WebSocket(this.urlWS);
       this.uploadMsg(message);
 
     }
@@ -149,5 +147,20 @@ console.log('end decrypt ', new Date());
           workCrypt: 'deCrypt',
         });
     }
+  }
+
+  changeFavorit(idElement, data) {
+    const itemIndex = localArrMessages.findIndex((item) => item.id === idElement);
+    localArrMessages[itemIndex].favorit = data;
+    
+    fetch(`${this.url}favorits`, {
+      body: JSON.stringify({
+        id: idElement,
+        value: data,
+      }),
+      method: 'POST',
+      headers: this.contentTypeHeader,
+    });
+
   }
 }

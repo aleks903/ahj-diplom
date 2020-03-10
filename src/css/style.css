@@ -94,11 +94,24 @@ input {
   width: 700px;
   min-height: 200px;
   max-height: 800px;
+  background-color: #fff8dc;
+}
+
+.top-block {
+  display: flex;
+  justify-content: flex-end;
+  background-color: #d4d3d3;
+}
+
+#button-select {
+  position: absolute;
+  z-index: -1;
 }
 
 .display-legends {
   overflow: auto;
   min-height: 300px;
+  padding-top: 10px;
 }
 
 .item-msg {
@@ -172,13 +185,13 @@ input {
 
 .av {
   border: 1px solid;
-  width: 25px;
-  height: 25px;
-  border-radius: 25px;   
+  width: 35px;
+  height: 35px;
+  border-radius: 25px;
   margin-right: 10px;
   cursor: pointer;
   background-position: center;
-  background-size: 15px;
+  background-size: 25px;
   background-repeat: no-repeat;
 }
 
@@ -188,6 +201,47 @@ input {
 
 #video {
   background-image: url('../img/camera.png');
+}
+
+.geo-teg {
+  background-image: url('../img/geo.png');
+}
+
+.like {
+  border: none;
+  background-image: url('../img/like.png');
+}
+
+.favorit {
+  background-color: #bfffa6;
+}
+
+.add-file {
+  border: none;
+  background-image: url('../img/upload.png');
+}
+
+.download {
+  background-image: url('../img/download.png');
+  border: none;
+  background-size: 30px;
+  background-color: #ffffff;
+  position: absolute;
+  z-index: 1;
+  top: 15px;
+  right: 15px;
+}
+
+.applicat {
+  background-image: url('../img/document.png');
+  width: 90px;
+  height: 100px;
+  margin-right: 10px;
+  /* cursor: pointer; */
+  background-position: center;
+  /* background-size: 25px; */
+  background-repeat: no-repeat;
+
 }
 
 #play-ok {
@@ -237,10 +291,12 @@ input {
   border: 1px solid;
   border-radius: 15px;
   padding: 15px;
-  margin-right: 15px;
+  margin-top: 15px;
+  cursor: pointer;
 }
 
 .item-message {
+  position: relative;
   border: 1px solid;
   border-radius: 15px;
   padding: 10px;
@@ -259,6 +315,7 @@ input {
 .footer-msg {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .hidden {

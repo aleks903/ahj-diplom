@@ -26,6 +26,7 @@ const popup = new Popup();
 popup.init();
 
 const elWindowStart = document.querySelector('.window');
+const elLegends = document.querySelector('.legends');
 const submitName = document.querySelector('#submit-name');
 const alertName = document.querySelector('#alert');
 const okAlert = document.querySelector('#ok-alert');
@@ -38,6 +39,7 @@ submitName.addEventListener('click', async () => {
   transferMsg.init();
   
   inputName.value = '';
+  elLegends.classList.remove('hidden');
   elWindowStart.classList.add('hidden');
   // **************** rec AV *********************
 
@@ -47,13 +49,14 @@ submitName.addEventListener('click', async () => {
 
 });
 
-okAlert.addEventListener('click', () => {
-  alertName.classList.add('hidden');
-});
+// okAlert.addEventListener('click', () => {
+//   alertName.classList.add('hidden');
+// });
 
 // ***************************** add file ****************************
 const buttonSelectFile = document.querySelector('#button-select');
 const elSelectFile = document.querySelector('#drop-file');
+const elFavorits = document.querySelector('#favorits');
 
 elAddFile.addEventListener('click', (event) => {
   buttonSelectFile.value = null;
@@ -78,9 +81,35 @@ buttonSelectFile.addEventListener('change', (event) => {
 });
 
 elSelectFile.addEventListener('scroll', (event) => {
-  if (event.target.scrollTop === 0) {
+  if (event.target.scrollTop <= 10) {
     transferMsg.lazyLoad();
   }
+});
+
+elSelectFile.addEventListener('click', (event) => {
+    const itemEl = event.target;
+  if (itemEl.classList.contains('like')) {
+    const parentEl = itemEl.closest('.item-message');
+    if (itemEl.classList.contains('favorit')) {
+      itemEl.classList.remove('favorit');
+      parentEl.classList.add('no-favorit');
+      transferMsg.changeFavorit(parentEl.dataset.id, false);
+      return;
+    }
+    itemEl.classList.add('favorit');
+    parentEl.classList.remove('no-favorit');
+    transferMsg.changeFavorit(parentEl.dataset.id, true);
+  }
+})
+
+elFavorits.addEventListener('click', () => {
+  if (elFavorits.classList.contains('favorit')) {
+    elFavorits.classList.remove('favorit');
+    elFavorits.innerHTML = '';
+    return;
+  }
+  elFavorits.classList.add('favorit');
+  elFavorits.innerHTML = '<style>.no-favorit {display: none;}</style>';
 });
 
 // **************** input file *********************

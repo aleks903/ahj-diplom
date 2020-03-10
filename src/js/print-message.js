@@ -1,3 +1,6 @@
+import hljs from 'highlight.js';
+import 'highlight.js/styles/github.css';
+
 function convertDate(value) {
   const rValue = value < 10 ? `0${value}` : value;
   return rValue;
@@ -47,13 +50,12 @@ export default class PrintMessage {
     }
     
     const elItemMsg = document.createElement('div');
-    elItemMsg.className = 'item-message loaded';
+    elItemMsg.className = 'item-message loaded no-favorit';
     elItemMsg.dataset.id = messageObj.id;
     elItemMsg.innerHTML = `
     ${msgHtml}
     <div class="footer-msg">
-      <div class="${messageObj.pin ? 'pined' : ''}">"${messageObj.pin ? 'pined' : 'noPined'}"</div>
-      <div class="${messageObj.favorit ? 'favorit' : ''}">"${messageObj.favorit ? 'favorit' : 'nofavorit'}"</div>
+      <div class="like av${messageObj.favorit ? ' favorit' : ''}"></div>
       <div class="date-time">${printData(messageObj.dateTime)}</div>
     </div>
     `;
@@ -83,55 +85,59 @@ export default class PrintMessage {
     `);
     }
     if (message.search(regExpCod) !== -1) {
+      
       const textCode = message.match(regExpCod)[0].replace(/```/g, '');
+      const highlightedCode = hljs.highlightAuto(textCode).value
       htmlMsg = message.replace(regExpCod, `
+      <pre>
       <code>
-      ${textCode}
+      ${highlightedCode}
       </code>
+      </pre>
     `);
     }
     return `
-      <p>${htmlMsg}</p>
+      ${htmlMsg}
     `;
   }
 
   printImg(img) {
     let htmlMsg = `
       <img src="${img}">
-      <a href="${img}" download="image">downoad</a>
+      <div class="download av"><a href="${img}" download="image"></a></div>
     `
     return `
-      <p>${htmlMsg}</p>
+      ${htmlMsg}
     `;
   }
   
   printVideo(obj) {
     let htmlMsg = `
       <video src="${obj}" controls="controls"></video>
-      <a href="${obj}" download="video">downoad</a>
+      <div class="download av"><a href="${obj}" download="video"></a></div>
     `
     return `
-      <p>${htmlMsg}</p>
+      ${htmlMsg}
     `;
   }
 
   printAudio(obj) {
     let htmlMsg = `
       <audio src="${obj}" controls="controls"></audio>
-      <a href="${obj}" download="audio">downoad</a>
+      <div class="download av"><a href="${obj}" download="audio"></a></div>
     `
     return `
-      <p>${htmlMsg}</p>
+      ${htmlMsg}
     `;
   }
   
   printApp(obj) {
     let htmlMsg = `
-      <div class="applicat">App</div>
-      <a href="${obj}" download="app">downoad</a>
+      <div class="applicat"></div>
+      <div class="download av"><a href="${obj}" download="app"></a></div>
     `
     return `
-      <p>${htmlMsg}</p>
+      ${htmlMsg}
     `;
   }
 }
