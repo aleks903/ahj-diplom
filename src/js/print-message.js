@@ -73,12 +73,21 @@ export default class PrintMessage {
 
   printTextMsg(message) {
     const regExp = /(https?:\/\/)[%:\w.\/-]+/;
+    const regExpCod = /```(.|\n)*?```/;
     let htmlMsg = message;
     if (message.search(regExp) !== -1) {
       htmlMsg = message.replace(regExp, `
       <a href="${message.match(regExp)[0]}">
       ${message.match(regExp)[0]}
       </a>
+    `);
+    }
+    if (message.search(regExpCod) !== -1) {
+      const textCode = message.match(regExpCod)[0].replace(/```/g, '');
+      htmlMsg = message.replace(regExpCod, `
+      <code>
+      ${textCode}
+      </code>
     `);
     }
     return `

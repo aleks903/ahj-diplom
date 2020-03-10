@@ -16,6 +16,7 @@ export default class TransferMessage{
     this.urlWS = 'ws://localhost:7070/ws';
     this.url = 'http://localhost:7070/'
     this.crypton = new Crypton(crypton);
+    this.lazyStart = true;
     // this.url = 'wss://heroku-ahj-hw-8-2.herokuapp.com/ws';
   }
 
@@ -90,22 +91,7 @@ console.log('end decrypt ', new Date());
       try {
 
         this.uploadMsg(message);
-        // const worker = new Worker();
-        // worker.addEventListener('message', (event) => {
-        //   console.log(event.data);
-        //   // elPrintHash.textContent = event.data;
-        //   // console.log(result);
-        //   worker.terminate();
-        // });
-  
-        // worker.postMessage({
-        //   file: message,
-        //   api,
-        //   keyCrypt: this.keyCrypt,
-        // });
 
-        // const jsonMsg = JSON.stringify(message);
-        // this.ws.send(jsonMsg);
       } catch (e) {
         console.log('err');
         console.log(e);
@@ -115,8 +101,7 @@ console.log('end decrypt ', new Date());
       console.log('reconect');
       this.ws = new WebSocket(this.url);
       this.uploadMsg(message);
-      // const jsonMsg = JSON.stringify(message);
-      // this.ws.send(jsonMsg);
+
     }
   }
 
@@ -131,29 +116,38 @@ console.log('end decrypt ', new Date());
         worker.postMessage({
           file: message,
           keyCrypt: this.keyCrypt,
+          workCrypt: 'enCrypt',
         });
   }
 
   async lazyLoad() {
-    console.log('lazyLoad');
-    const lengthItem = localArrMessages.length;
-    const resp = await fetch(`${this.url}msg/${lengthItem}`);
-    const body = await resp.json();
 
-    for (const item of body) {
-      const inpMsg = JSON.parse(item);
-console.log('start decrypt ', new Date());
-      const deCrypt = this.crypton.deCrypt(inpMsg.msg);
+    if (this.lazyStart) {
+      this.lazyStart = false;
+
+      const lengthItem = localArrMessages.length;
+      const resp = await fetch(`${this.url}msg/${lengthItem}`);
+      const body = await resp.json();
       
-console.log('end decrypt ', new Date());
-      if (deCrypt && deCrypt !== null) {
-        // console.log(deCrypt);
-        inpMsg.msg = deCrypt;
-        localArrMessages.push(inpMsg);
-        this.printMsg.printMsg(inpMsg, 'start');
-        document.querySelector(`[data-id="${inpMsg.id}"]`).classList.remove('loaded');
-      }
+      let lengthDown = body.length;
+        const worker = new Worker();
+        worker.addEventListener('message', (event) => {
+            if (event.data.msg && event.data.msg !== null) {
+              localArrMessages.push(event.data);
+              this.printMsg.printMsg(event.data, 'start');
+              document.querySelector(`[data-id="${event.data.id}"]`).classList.remove('loaded');
+            }
+            lengthDown -= 1;
+            if (lengthDown === 0) {
+              this.lazyStart = true;
+            }
+        });
+  
+        worker.postMessage({
+          file: body,
+          keyCrypt: this.keyCrypt,
+          workCrypt: 'deCrypt',
+        });
     }
   }
-
 }
