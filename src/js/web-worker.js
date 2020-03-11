@@ -19,18 +19,18 @@ function deCrypt(objMsg, crypton) {
   }
 }
 
-window.self.addEventListener('message', async (event) => {
+self.addEventListener('message', async (event) => {
   let content = '';
   if (event.data.workCrypt === 'enCrypt') {
     content = await enCrypt(event.data.file, event.data.keyCrypt);
-    window.self.postMessage(content);
+    self.postMessage(content);
   } else if (event.data.workCrypt === 'deCrypt') {
     for (const item of event.data.file) {
       const inpMsg = JSON.parse(item);
       content = deCrypt(inpMsg.msg, event.data.keyCrypt);
       inpMsg.msg = content;
-      window.self.postMessage(inpMsg);
+      self.postMessage(inpMsg);
     }
-    window.self.close();
+    self.close();
   }
 });
