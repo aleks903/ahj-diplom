@@ -1,7 +1,4 @@
 /* eslint-disable class-methods-use-this */
-// import MessageAddGEO from './messageAddGEO.js';
-
-// const cmessageAddGeo = new MessageAddGEO();
 const uuid = require('uuid');
 
 export default class AVrec {
@@ -98,7 +95,7 @@ export default class AVrec {
           console.log('recording stopped');
           // const blob = new Blob(chunks, {type: 'audio/mpeg3'});
           const blob = new Blob(chunks, { type: `${curMedia}/mp4` });
-          
+
           const fr = new FileReader();
           fr.readAsDataURL(blob);
 

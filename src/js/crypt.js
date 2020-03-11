@@ -11,10 +11,9 @@ export default class Crypt {
 
   deCrypt(data) {
     try {
-      let bytes  = CryptoJS.AES.decrypt(data, this.keyCrypt);
+      const bytes = CryptoJS.AES.decrypt(data, this.keyCrypt);
       const retStr = bytes.toString(CryptoJS.enc.Utf8);
       return retStr;
-      
     } catch (e) {
       console.log(e);
       return null;

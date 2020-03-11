@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 import hljs from 'highlight.js';
 import 'highlight.js/styles/github.css';
 
@@ -25,30 +26,27 @@ export default class PrintMessage {
   }
 
   printMsg(messageObj, insertPosition) {
-    // const itemMsg = this.crypton.deCrypt(messageObj.msg);
     const itemMsg = messageObj.msg;
     let msgHtml = '';
-    
-    console.log(messageObj.type);
 
     switch (messageObj.type) {
-      case 'text':
+      case 'textMsg':
         msgHtml = this.printTextMsg(itemMsg);
         break;
       case 'image':
-        msgHtml = this.printImg(itemMsg);
+        msgHtml = this.printImg(itemMsg, messageObj.name);
         break;
       case 'video':
-        msgHtml = this.printVideo(itemMsg);
+        msgHtml = this.printVideo(itemMsg, messageObj.name);
         break;
       case 'audio':
-        msgHtml = this.printAudio(itemMsg);
+        msgHtml = this.printAudio(itemMsg, messageObj.name);
         break;
-      case 'application':
-        msgHtml = this.printApp(itemMsg);
+      default:
+        msgHtml = this.printApp(itemMsg, messageObj.name);
         break;
     }
-    
+
     const elItemMsg = document.createElement('div');
     elItemMsg.className = 'item-message loaded no-favorit';
     elItemMsg.dataset.id = messageObj.id;
@@ -62,80 +60,73 @@ export default class PrintMessage {
     if (insertPosition === 'end') {
       this.parentEl.appendChild(elItemMsg);
       this.parentEl.scrollTo(0, elItemMsg.offsetTop);
-      console.log('end');
     } else {
-      console.log('start');
       this.parentEl.prepend(elItemMsg);
-      // this.parentEl.scrollTo(0, this.parentEl.scrollHeight);
     }
-    
-    
-    console.log('appendChild');
   }
 
   printTextMsg(message) {
-    const regExp = /(https?:\/\/)[%:\w.\/-]+/;
+    const regExp = /(https?:\/\/)[%:\w.\/-]+/;// eslint-disable-line no-useless-escape
     const regExpCod = /```(.|\n)*?```/;
     let htmlMsg = message;
+
     if (message.search(regExp) !== -1) {
       htmlMsg = message.replace(regExp, `
-      <a href="${message.match(regExp)[0]}">
-      ${message.match(regExp)[0]}
-      </a>
+      <a href="${message.match(regExp)[0]}">${message.match(regExp)[0]}</a>
     `);
     }
+
     if (message.search(regExpCod) !== -1) {
-      
-      const textCode = message.match(regExpCod)[0].replace(/```/g, '');
-      const highlightedCode = hljs.highlightAuto(textCode).value
+      const textCode = message.match(regExpCod)[0].replace(/```\n?/g, '');
+      const highlightedCode = hljs.highlightAuto(textCode.trim()).value;
       htmlMsg = message.replace(regExpCod, `
-      <pre>
-      <code>
-      ${highlightedCode}
-      </code>
-      </pre>
-    `);
+      <pre><code>${highlightedCode}</code></pre>
+      `);
     }
     return `
       ${htmlMsg}
     `;
   }
 
-  printImg(img) {
-    let htmlMsg = `
+  printImg(img, name) {
+    const htmlMsg = `
       <img src="${img}">
-      <div class="download av"><a href="${img}" download="image"></a></div>
-    `
-    return `
-      ${htmlMsg}
+      <p class="name">${name}</p>
+      <a  class="download av" href="${img}" download="image"></a>
     `;
-  }
-  
-  printVideo(obj) {
-    let htmlMsg = `
-      <video src="${obj}" controls="controls"></video>
-      <div class="download av"><a href="${obj}" download="video"></a></div>
-    `
     return `
       ${htmlMsg}
     `;
   }
 
-  printAudio(obj) {
-    let htmlMsg = `
-      <audio src="${obj}" controls="controls"></audio>
-      <div class="download av"><a href="${obj}" download="audio"></a></div>
-    `
+  printVideo(obj, name) {
+    const htmlMsg = `
+      <video src="${obj}" controls="controls"></video>
+      <p class="name">${name}</p>
+      <a class="download av" href="${obj}" download="video"></a>
+    `;
     return `
       ${htmlMsg}
     `;
   }
-  
-  printApp(obj) {
-    let htmlMsg = `
+
+  printAudio(obj, name) {
+    const htmlMsg = `
+      <audio src="${obj}" controls="controls"></audio>
+      <p class="name">${name}</p>
+      <a class="download av" href="${obj}" download="audio"></a>
+    `;
+    return `
+      ${htmlMsg}
+    `;
+  }
+
+  printApp(obj, name) {
+    const htmlMsg = `
       <div class="applicat"></div>
-      <div class="download av"><a href="${obj}" download="app"></a></div>
-    `
+      <p class="name">${name}</p>
+      <a class="download av" href="${obj}" download="app"></a>
+    `;
     return `
       ${htmlMsg}
     `;

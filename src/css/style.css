@@ -305,6 +305,13 @@ input {
   margin-left: auto;
   margin-bottom: 10px;
 }
+
+.bot {
+  margin-right: auto;
+  margin-left: 0;
+  background-color: #ceffee;
+}
+
 .loaded {
   opacity: 0.6;
 }

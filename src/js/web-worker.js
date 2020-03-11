@@ -1,5 +1,24 @@
 import CryptoJS from 'crypto-js';
 
+function enCrypt(objMsg, crypton) {
+  const itemMsg = objMsg;
+  const cryptMsg = CryptoJS.AES.encrypt(itemMsg.msg, crypton).toString();
+  itemMsg.msg = cryptMsg;
+  return itemMsg;
+}
+
+function deCrypt(objMsg, crypton) {
+  try {
+    const itemMsg = objMsg;
+    const bytes = CryptoJS.AES.decrypt(itemMsg, crypton);
+    const retStr = bytes.toString(CryptoJS.enc.Utf8);
+    return retStr;
+  } catch (e) {
+    console.log(e);
+    return null;
+  }
+}
+
 self.addEventListener('message', async (event) => {
   let content = '';
   if (event.data.workCrypt === 'enCrypt') {
@@ -12,23 +31,6 @@ self.addEventListener('message', async (event) => {
       inpMsg.msg = content;
       self.postMessage(inpMsg);
     }
-    
+    self.close();
   }
 });
-
-function enCrypt(objMsg, crypton) {
-  const cryptMsg = CryptoJS.AES.encrypt(objMsg.msg, crypton).toString();
-  objMsg.msg = cryptMsg;
-  return objMsg;
-}
-
-function deCrypt(objMsg, crypton) {
-  try {
-    let bytes  = CryptoJS.AES.decrypt(objMsg, crypton);
-    const retStr = bytes.toString(CryptoJS.enc.Utf8);
-    return retStr;
-  } catch (e) {
-    console.log(e);
-    return null;
-  }
-}

@@ -1,64 +1,67 @@
-import API from './Api.js';
 import TransferMessage from './transfer-message.js';
-// import Crypton from './crypt.js';
-// **************** rec AV *********************
 import Popup from './popup.js';
 import RecAV from './recAV.js';
-// **************** rec AV *********************
 import getGEO from './getGEO.js';
+import Bot from './bot.js';
 
 const uuid = require('uuid');
 
-// *******************************************
 const elAddFile = document.querySelector('.add-file');
-// let crypton = {};
-let transferMsg = {};
-// const localArrMessages = [];
-// const transferMsg = new TransferMessage(crypton);
-// *******************************************
-
-const api = new API('http://localhost:7070/users');
-// const api = new API('https://heroku-ahj-hw-8-2.herokuapp.com/users');
-
-
-
 const popup = new Popup();
 popup.init();
 
+let transferMsg = {};
 const elWindowStart = document.querySelector('.window');
 const elLegends = document.querySelector('.legends');
 const submitName = document.querySelector('#submit-name');
-const alertName = document.querySelector('#alert');
-const okAlert = document.querySelector('#ok-alert');
+const funcBot = new Bot(document.querySelector('.display-legends'));
 
 submitName.addEventListener('click', async () => {
   const inputName = document.querySelector('#inp-name');
   const keyCrypt = inputName.value;
-  
+
   transferMsg = new TransferMessage(keyCrypt);
   transferMsg.init();
-  
+
   inputName.value = '';
   elLegends.classList.remove('hidden');
   elWindowStart.classList.add('hidden');
   // **************** rec AV *********************
-
   const recorder = new RecAV(popup, transferMsg);
   recorder.init();
 // **************** rec AV *********************
-
 });
 
-// okAlert.addEventListener('click', () => {
-//   alertName.classList.add('hidden');
-// });
+// **************** input file *********************
+function loadFile(file) {
+  console.log(file.name);
+  const itemId = uuid.v4();
+  const regExp = /[a-z]+/;
+  const typeFile = file.type.match(regExp)[0];
+
+  const fr = new FileReader();
+  fr.readAsDataURL(file);
+
+  fr.onload = () => {
+    const objMessage = {
+      id: itemId,
+      type: typeFile,
+      pin: false,
+      favorit: false,
+      name: file.name,
+      msg: fr.result,
+      dateTime: new Date(),
+    };
+    transferMsg.sendMessage(objMessage);
+  };
+}
 
 // ***************************** add file ****************************
 const buttonSelectFile = document.querySelector('#button-select');
 const elSelectFile = document.querySelector('#drop-file');
 const elFavorits = document.querySelector('#favorits');
 
-elAddFile.addEventListener('click', (event) => {
+elAddFile.addEventListener('click', () => {
   buttonSelectFile.value = null;
   buttonSelectFile.dispatchEvent(new MouseEvent('click'));
 });
@@ -81,13 +84,13 @@ buttonSelectFile.addEventListener('change', (event) => {
 });
 
 elSelectFile.addEventListener('scroll', (event) => {
-  if (event.target.scrollTop <= 10) {
+  if (event.target.scrollTop === 0) {
     transferMsg.lazyLoad();
   }
 });
 
 elSelectFile.addEventListener('click', (event) => {
-    const itemEl = event.target;
+  const itemEl = event.target;
   if (itemEl.classList.contains('like')) {
     const parentEl = itemEl.closest('.item-message');
     if (itemEl.classList.contains('favorit')) {
@@ -100,7 +103,7 @@ elSelectFile.addEventListener('click', (event) => {
     parentEl.classList.remove('no-favorit');
     transferMsg.changeFavorit(parentEl.dataset.id, true);
   }
-})
+});
 
 elFavorits.addEventListener('click', () => {
   if (elFavorits.classList.contains('favorit')) {
@@ -112,39 +115,23 @@ elFavorits.addEventListener('click', () => {
   elFavorits.innerHTML = '<style>.no-favorit {display: none;}</style>';
 });
 
-// **************** input file *********************
-function loadFile(file) {
-  const itemId = uuid.v4();
-  const regExp = /[a-z]+/;
-  const typeFile = file.type.match(regExp)[0];
-
-  // let dataFile = null;
-  const fr = new FileReader();
-  fr.readAsDataURL(file);
-
-  fr.onload = () => {
-    // dataFile = crypton.enCrypt(fr.result);
-
-    const objMessage = {
-      id: itemId,
-      type: typeFile,
-      pin: false,
-      favorit: false,
-      msg: fr.result,
-      dateTime: new Date(),
-    };
-    transferMsg.sendMessage(objMessage);
-  };
-}
-
 // **************** input text *********************
 const elInput = document.querySelector('#el-input');
 
 elInput.addEventListener('keypress', (evt) => {
   if (evt.key === 'Enter') {
+    evt.preventDefault();
+
+    const regExpBot = /^@chaos:/;
+    if (elInput.value.search(regExpBot) !== -1) {
+      funcBot.funcBot(elInput.value);
+      elInput.value = '';
+      return;
+    }
+
     const objMessage = {
       id: uuid.v4(),
-      type: 'text',
+      type: 'textMsg',
       pin: false,
       favorit: false,
       msg: elInput.value,
@@ -152,7 +139,6 @@ elInput.addEventListener('keypress', (evt) => {
     };
     transferMsg.sendMessage(objMessage);
     elInput.value = '';
-    // cmessageAddGeo.messageAddGEO(`<p>${elInput.value}</p>`, popup);
   }
 });
 
@@ -184,7 +170,7 @@ elGEO.addEventListener('click', async () => {
   console.log(GEOteg);
   const objMessage = {
     id: uuid.v4(),
-    type: 'text',
+    type: 'textMsg',
     pin: false,
     favorit: false,
     msg: GEOteg,
@@ -193,3 +179,9 @@ elGEO.addEventListener('click', async () => {
   transferMsg.sendMessage(objMessage);
 });
 
+// **************** export *********************
+const elExport = document.querySelector('#export-history');
+
+elExport.addEventListener(('click'), async () => {
+  transferMsg.exportHistory();
+});

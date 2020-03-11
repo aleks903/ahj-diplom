@@ -21,6 +21,7 @@ module.exports = {
       "sourceType": "module"
     },
     "rules": {
+      "no-restricted-globals": noRestrictedGlobals,
       "no-restricted-syntax": [
         "error",
         "LabeledStatement",
@@ -29,12 +30,12 @@ module.exports = {
       "import/extensions": [
         "error",
         "ignorePackages"
+      ],
+      "linebreak-style":
+      [
+        "error",
+        "windows"
       ]
-      // "linebreak-style":
-      // [
-      //   "error",
-      //   "windows"
-      // ]
     },
     "overrides": [
       {

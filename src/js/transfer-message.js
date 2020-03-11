@@ -1,20 +1,15 @@
-import API from './Api.js';
-import PrintMessage from './print-message.js';
 import Worker from './web-worker.js';
+import PrintMessage from './print-message.js';
 import Crypton from './crypt.js';
 
-const api = new API('http://localhost:7070/');
-
-const uuid = require('uuid');
-
 const localArrMessages = [];
+const urls = 'localhost:7070';
 
-
-export default class TransferMessage{
+export default class TransferMessage {
   constructor(crypton) {
     this.keyCrypt = crypton;
-    this.urlWS = 'ws://localhost:7070/ws';
-    this.url = 'http://localhost:7070/'
+    this.urlWS = `ws://${urls}/ws`;
+    this.url = `http://${urls}/`;
     this.crypton = new Crypton(crypton);
     this.lazyStart = true;
     // this.url = 'wss://heroku-ahj-hw-8-2.herokuapp.com/ws';
@@ -24,52 +19,34 @@ export default class TransferMessage{
     this.elListMessages = document.querySelector('.display-legends');
     this.printMsg = new PrintMessage(this.elListMessages, this.crypton);
     this.initWS();
-
-    // const resp = await fetch('http://localhost:7070/initmsg', {
-    //   body: './msg.json',
-    //   method: 'POST',
-    //   headers: this.contentTypeHeader,
-    // });
-
     const resp = await fetch(`${this.url}initmsg`);
-    const body = await resp.text();
-    console.log('LoadInitMsg', body);
-
+    await resp.text();
     this.lazyLoad();
-// const body = await resp.text();
-    // console.log('body', JSON.parse(body));
   }
 
   initWS() {
     this.ws = new WebSocket(this.urlWS);
-
     this.ws.addEventListener('open', () => {
       console.log('connected');
-      // this.ws.send('hello');
     });
 
     this.ws.addEventListener('message', (evt) => {
-      // print msg
-      // console.log(evt);
       const inpMsg = JSON.parse(evt.data);
-
       const itemEl = document.querySelector(`[data-id="${inpMsg.id}"]`);
-      if(itemEl !== null) {
-          itemEl.classList.remove('loaded');
-          return;
+
+      if (itemEl !== null) {
+        itemEl.classList.remove('loaded');
+        return;
       }
 
       const deCrypt = this.crypton.deCrypt(inpMsg.msg);
-      
+
       if (deCrypt && deCrypt !== null) {
-        // console.log(deCrypt);
         inpMsg.msg = deCrypt;
         localArrMessages.push(inpMsg);
         this.printMsg.printMsg(inpMsg, 'end');
         document.querySelector(`[data-id="${inpMsg.id}"]`).classList.remove('loaded');
       }
-      
-
     });
 
     this.ws.addEventListener('close', (evt) => {
@@ -87,72 +64,64 @@ export default class TransferMessage{
 
     if (this.ws.readyState === WebSocket.OPEN) {
       try {
-
         this.uploadMsg(message);
-
       } catch (e) {
         console.log('err');
         console.log(e);
       }
     } else {
-      // Reconnect
-      console.log('reconect');
       this.ws = new WebSocket(this.urlWS);
       this.uploadMsg(message);
-
     }
   }
 
   uploadMsg(message) {
     const worker = new Worker();
-        worker.addEventListener('message', (event) => {
-          // console.log(event.data);
-          this.ws.send(JSON.stringify(event.data));
-          worker.terminate();
-        });
-  
-        worker.postMessage({
-          file: message,
-          keyCrypt: this.keyCrypt,
-          workCrypt: 'enCrypt',
-        });
+    worker.addEventListener('message', (event) => {
+      this.ws.send(JSON.stringify(event.data));
+      worker.terminate();
+    });
+
+    worker.postMessage({
+      file: message,
+      keyCrypt: this.keyCrypt,
+      workCrypt: 'enCrypt',
+    });
   }
 
   async lazyLoad() {
-
     if (this.lazyStart) {
       this.lazyStart = false;
-
       const lengthItem = localArrMessages.length;
       const resp = await fetch(`${this.url}msg/${lengthItem}`);
       const body = await resp.json();
-      
+
       let lengthDown = body.length;
-        const worker = new Worker();
-        worker.addEventListener('message', (event) => {
-            if (event.data.msg && event.data.msg !== null) {
-              localArrMessages.push(event.data);
-              this.printMsg.printMsg(event.data, 'start');
-              document.querySelector(`[data-id="${event.data.id}"]`).classList.remove('loaded');
-            }
-            lengthDown -= 1;
-            if (lengthDown === 0) {
-              this.lazyStart = true;
-            }
-        });
-  
-        worker.postMessage({
-          file: body,
-          keyCrypt: this.keyCrypt,
-          workCrypt: 'deCrypt',
-        });
+      const worker = new Worker();
+      worker.addEventListener('message', (event) => {
+        if (event.data.msg && event.data.msg !== null) {
+          localArrMessages.push(event.data);
+          this.printMsg.printMsg(event.data, 'start');
+          document.querySelector(`[data-id="${event.data.id}"]`).classList.remove('loaded');
+        }
+        lengthDown -= 1;
+        if (lengthDown === 0) {
+          this.lazyStart = true;
+        }
+      });
+
+      worker.postMessage({
+        file: body,
+        keyCrypt: this.keyCrypt,
+        workCrypt: 'deCrypt',
+      });
     }
   }
 
   changeFavorit(idElement, data) {
     const itemIndex = localArrMessages.findIndex((item) => item.id === idElement);
     localArrMessages[itemIndex].favorit = data;
-    
+
     fetch(`${this.url}favorits`, {
       body: JSON.stringify({
         id: idElement,
@@ -161,6 +130,20 @@ export default class TransferMessage{
       method: 'POST',
       headers: this.contentTypeHeader,
     });
+  }
 
+  async exportHistory() {
+    const filename = 'history.json';
+    const resp = await fetch(`${this.url}allmsg`);
+    const body = await resp.json();
+    const jsonStr = JSON.stringify(body);
+
+    const element = document.createElement('a');
+    element.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(jsonStr)}`);
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
   }
 }
