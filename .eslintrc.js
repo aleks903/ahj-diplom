@@ -30,12 +30,12 @@ module.exports = {
       "import/extensions": [
         "error",
         "ignorePackages"
-      ],
-      "linebreak-style":
-      [
-        "error",
-        "windows"
       ]
+      // "linebreak-style":
+      // [
+      //   "error",
+      //   "windows"
+      // ]
     },
     "overrides": [
       {
