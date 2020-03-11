@@ -4,12 +4,13 @@ import Crypton from './crypt.js';
 
 const localArrMessages = [];
 const urls = 'localhost:7070';
+const urls = 'heroku-ahj-diplom-b.herokuapp.com';
 
 export default class TransferMessage {
   constructor(crypton) {
     this.keyCrypt = crypton;
-    this.urlWS = `ws://${urls}/ws`;
-    this.url = `http://${urls}/`;
+    this.urlWS = `wss://${urls}/ws`;
+    this.url = `https://${urls}/`;
     this.crypton = new Crypton(crypton);
     this.lazyStart = true;
     // this.url = 'wss://heroku-ahj-hw-8-2.herokuapp.com/ws';
